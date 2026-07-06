@@ -53,8 +53,18 @@ export const GEMINI_RESPONSE_SCHEMA = {
             description:
               "Model's confidence in this specific word-level judgment, from 0.0 to 1.0.",
           },
+          startTime: {
+            type: "NUMBER",
+            description:
+              "Estimated start time in seconds of this word within the audio clip.",
+          },
+          endTime: {
+            type: "NUMBER",
+            description:
+              "Estimated end time in seconds of this word within the audio clip.",
+          },
         },
-        required: ["word", "status", "reason", "confidence"],
+        required: ["word", "status", "reason", "confidence", "startTime", "endTime"],
       },
     },
   },

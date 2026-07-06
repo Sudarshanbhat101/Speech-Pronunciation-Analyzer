@@ -42,7 +42,10 @@ export async function POST(req: NextRequest) {
     const mimeType = audioFile.type;
     const sizeBytes = audioFile.size;
 
-    const validation = validateAudioFile(mimeType, sizeBytes);
+    const durationStr = formData.get("duration");
+    const durationSeconds = durationStr ? parseFloat(durationStr as string) : undefined;
+
+    const validation = validateAudioFile(mimeType, sizeBytes, durationSeconds);
     if (!validation.valid) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }

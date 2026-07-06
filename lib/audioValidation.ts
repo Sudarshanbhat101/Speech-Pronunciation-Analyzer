@@ -52,7 +52,8 @@ const ESTIMATED_BITRATE_BY_MIME: Record<string, number> = {
 
 export function validateAudioFile(
   mimeType: string,
-  sizeBytes: number
+  sizeBytes: number,
+  durationSeconds?: number
 ): AudioValidationResult {
   if (!mimeType) {
     return {
@@ -86,10 +87,57 @@ export function validateAudioFile(
     };
   }
 
+  if (durationSeconds !== undefined) {
+    if (isNaN(durationSeconds) || durationSeconds <= 0) {
+      return {
+        valid: false,
+        error: "Invalid audio duration provided.",
+      };
+    }
+
+    if (durationSeconds < MIN_DURATION_SECONDS) {
+      return {
+        valid: false,
+        error: `Audio is too short (${durationSeconds.toFixed(1)}s). Please upload a recording between 30-45 seconds.`,
+        estimatedDurationSeconds: durationSeconds,
+      };
+    }
+
+    if (durationSeconds > MAX_DURATION_SECONDS) {
+      return {
+        valid: false,
+        error: `Audio is too long (${durationSeconds.toFixed(1)}s). Please upload a recording between 30-45 seconds.`,
+        estimatedDurationSeconds: durationSeconds,
+      };
+    }
+
+    // Sanity check client-provided duration against size bytes to prevent manipulation.
+    // Max reasonable bitrate: 3 Mbps (extremely high for speech audio, e.g., raw stereo WAV)
+    // Min reasonable bitrate: 8 kbps (extremely low, e.g., highly compressed voice)
+    const computedBitrate = (sizeBytes * 8) / durationSeconds;
+    if (computedBitrate > 3_000_000 || computedBitrate < 8_000) {
+      return {
+        valid: false,
+        error: "Audio file size does not match the provided duration.",
+      };
+    }
+
+    return {
+      valid: true,
+      estimatedDurationSeconds: durationSeconds,
+    };
+  }
+
+  // Fallback if duration is not provided (e.g. direct API callers)
   const bitrate = ESTIMATED_BITRATE_BY_MIME[normalizedMime] ?? 128_000;
   const estimatedDurationSeconds = (sizeBytes * 8) / bitrate;
 
-  if (estimatedDurationSeconds < MIN_DURATION_SECONDS) {
+  // For the server fallback estimation, we use a much wider tolerance to avoid false rejections
+  // since bitrates vary widely. Let's use 10s to 120s as a fallback sanity check.
+  const MIN_ESTIMATED = 10;
+  const MAX_ESTIMATED = 120;
+
+  if (estimatedDurationSeconds < MIN_ESTIMATED) {
     return {
       valid: false,
       error: `Audio appears too short (~${estimatedDurationSeconds.toFixed(
@@ -99,7 +147,7 @@ export function validateAudioFile(
     };
   }
 
-  if (estimatedDurationSeconds > MAX_DURATION_SECONDS) {
+  if (estimatedDurationSeconds > MAX_ESTIMATED) {
     return {
       valid: false,
       error: `Audio appears too long (~${estimatedDurationSeconds.toFixed(

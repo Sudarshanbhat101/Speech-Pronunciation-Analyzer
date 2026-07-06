@@ -11,6 +11,7 @@
 // responseMimeType forcing structured JSON back.
 
 import { GEMINI_RESPONSE_SCHEMA } from "./responseSchema";
+import type { AssessmentResult, WordAssessment } from "@/types/assessment";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -20,29 +21,31 @@ export interface AssessPronunciationParams {
   mimeType: string;
 }
 
-export interface WordJudgment {
-  word: string;
-  status: "correct" | "mispronounced" | "unclear";
-  reason: string;
-  confidence: number;
-}
-
-export interface AssessmentResult {
+export interface GeminiRawResponse {
   transcript: string;
   overallScore: number;
   overallFeedback: string;
-  words: WordJudgment[];
+  words: Array<{
+    word: string;
+    status: "correct" | "mispronounced" | "unclear";
+    reason: string;
+    confidence: number;
+    startTime: number;
+    endTime: number;
+  }>;
 }
 
 const PRONUNCIATION_PROMPT = `You are an expert English pronunciation coach and phonetician. Listen carefully to the attached audio of a speaker reading or speaking English.
 
 Your task:
-1. Transcribe exactly what was said, word for word.
-2. For EVERY word in the transcript, judge whether it was pronounced correctly, mispronounced, or was unclear/unintelligible. Base this on standard English phonetics (you may use a neutral General American or Received Pronunciation standard) — consider stress placement, vowel sounds, consonant clarity, and phoneme accuracy.
-3. For any word that is "mispronounced" or "unclear", give a brief, specific, technical-but-understandable reason (e.g. "stressed the wrong syllable", "substituted /v/ for /w/", "final consonant dropped", "vowel sound too short").
-4. Give an overall pronunciation score from 0-100 reflecting general intelligibility and accuracy across the whole clip, and a short overall feedback summary (2-3 sentences) covering strengths and the most important areas to improve.
+1. Transcribe exactly what was said, word for word, including filler words like "um" or "uh" if present.
+2. For EVERY word in the transcript, judge whether it was pronounced correctly, mispronounced, or was unclear/unintelligible. Base this on standard English phonetics (you may use a neutral General American or Received Pronunciation standard) — consider stress placement, vowel sounds, consonant clarity, phoneme accuracy, and articulation speed/clarity.
+3. Apply real scrutiny word by word — do not default to marking speech as entirely correct just because it is broadly understandable. Listen specifically for: dropped or slurred final consonants, reduced/swallowed vowels, wrong syllable stress, sounds substituted for similar ones (e.g. /v/ for /w/, /th/ softened to /d/ or /f/), and words that are mumbled, rushed, or trail off unclearly. If in genuine doubt about a word's clarity, mark it "unclear" rather than defaulting to "correct".
+4. For any word that is "mispronounced" or "unclear", give a brief, specific, technical-but-understandable reason (e.g. "stressed the wrong syllable", "substituted /v/ for /w/", "final consonant dropped", "vowel sound too short").
+5. Give an overall pronunciation score from 0-100 reflecting general intelligibility and accuracy across the whole clip, and a short overall feedback summary (2-3 sentences) covering strengths and the most important areas to improve. Reserve scores of 95+ for speech with genuinely zero detectable issues — most real speech, even fluent speech, has at least minor imperfections worth noting.
+6. For EVERY word in the transcript, estimate its approximate start and end timestamps in seconds (e.g., startTime = 1.45, endTime = 1.90) relative to the start of the audio file. Make sure they are sequentially increasing.
 
-Be fair and precise. Do not mark a word as mispronounced just because of natural regional accent variation (e.g. British vs American vowel differences) unless it affects intelligibility. Only flag genuine pronunciation errors or unclear articulation.
+Be fair and precise. Do not mark a word as mispronounced just because of natural regional accent variation (e.g. British vs American vowel differences) unless it affects intelligibility. Only flag genuine pronunciation errors or unclear articulation — but do apply real scrutiny rather than being lenient by default.
 
 Return your response strictly according to the provided JSON schema. Do not include any text outside the JSON.`;
 
@@ -136,7 +139,7 @@ export async function assessPronunciation({
     );
   }
 
-  let parsed: AssessmentResult;
+  let parsed: GeminiRawResponse;
   try {
     parsed = JSON.parse(rawText);
   } catch (err) {
@@ -159,5 +162,23 @@ export async function assessPronunciation({
     );
   }
 
-  return parsed;
+  const mappedWords: WordAssessment[] = parsed.words.map((w, index) => ({
+    index,
+    word: w.word,
+    status: w.status,
+    reason: w.reason,
+    startTime: w.startTime,
+    endTime: w.endTime,
+  }));
+
+  const finalResult: AssessmentResult = {
+    transcript: parsed.transcript,
+    overallScore: parsed.overallScore,
+    overallFeedback: parsed.overallFeedback,
+    words: mappedWords,
+    wordCount: mappedWords.length,
+    issueCount: mappedWords.filter((w) => w.status !== "correct").length,
+  };
+
+  return finalResult;
 }
