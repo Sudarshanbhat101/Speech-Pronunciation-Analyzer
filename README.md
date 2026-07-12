@@ -8,7 +8,7 @@
 
 Upload 30–45 seconds of English speech and get an **instant pronunciation score** with **word-by-word feedback** — powered by Google's Gemini AI.
 
-> **Live demo:** [speech-pronunciation-analyzer.vercel.app](https://speech-pronunciation-analyzer.vercel.app)
+> **Live demo:** [speech-pronunciation-analyzer-omega.vercel.app](https://speech-pronunciation-analyzer-omega.vercel.app/)
 
 ---
 
