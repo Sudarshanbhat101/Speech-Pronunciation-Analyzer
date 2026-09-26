@@ -23,6 +23,9 @@ export default function ScoreResult({ result, onReset }: ScoreResultProps) {
   const { overallScore, overallFeedback, words, issueCount, wordCount } = result;
   const tier = scoreTier(overallScore);
   const clampedScore = Math.max(0, Math.min(100, overallScore));
+  const issueText = issueCount === 0
+    ? `All ${wordCount} words sounded clear.`
+    : `${issueCount} of ${wordCount} words need attention.`;
 
   return (
     <div className="score-result">
@@ -45,9 +48,7 @@ export default function ScoreResult({ result, onReset }: ScoreResultProps) {
           </span>
           <p className="score-feedback">{overallFeedback}</p>
           <p className="score-issue-count">
-            {issueCount === 0
-              ? `All ${wordCount} words sounded clear.`
-              : `${issueCount} of ${wordCount} words need attention.`}
+            {issueText}
           </p>
         </div>
       </div>
