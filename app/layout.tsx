@@ -29,6 +29,8 @@ export const metadata: Metadata = {
     "Upload 30–45 seconds of English speech and get an instant pronunciation score with word-level feedback.",
 };
 
+const FOOTER_NOTE = "Audio is processed in memory and never stored on our servers.";
+
 export default function RootLayout({
   children,
 }: {
@@ -73,7 +75,7 @@ export default function RootLayout({
           <footer className="site-footer">
             <p className="footer-note">
               <span className="footer-dot" aria-hidden="true"></span>
-              Audio is processed in memory and never stored on our servers.
+              {FOOTER_NOTE}
             </p>
           </footer>
         </div>
