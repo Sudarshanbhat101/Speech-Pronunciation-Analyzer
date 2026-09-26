@@ -63,6 +63,17 @@ export interface AssessmentResult {
   wordCount: number;
 }
 
+const ASSESSMENT_ERROR_CODES = [
+  "NO_FILE",
+  "FILE_TOO_LARGE",
+  "INVALID_DURATION",
+  "UNSUPPORTED_FORMAT",
+  "NO_CONSENT",
+  "GEMINI_ERROR",
+  "PARSE_ERROR",
+  "UNKNOWN",
+] as const;
+
 /**
  * Error shape returned by /api/assess on failure (validation error,
  * Gemini API error, malformed JSON from the model, etc).
@@ -70,15 +81,7 @@ export interface AssessmentResult {
 export interface AssessmentError {
   error: string;
   /** Optional machine-readable error code for client-side branching. */
-  code?:
-  | "NO_FILE"
-  | "FILE_TOO_LARGE"
-  | "INVALID_DURATION"
-  | "UNSUPPORTED_FORMAT"
-  | "NO_CONSENT"
-  | "GEMINI_ERROR"
-  | "PARSE_ERROR"
-  | "UNKNOWN";
+  code?: (typeof ASSESSMENT_ERROR_CODES)[number];
 }
 
 /**
