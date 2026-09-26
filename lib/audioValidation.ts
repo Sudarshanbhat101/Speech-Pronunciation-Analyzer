@@ -27,6 +27,8 @@ export const ACCEPTED_MIME_TYPES = [
   "audio/ogg",
 ] as const;
 
+const ACCEPTED_FORMATS_DISPLAY = "WAV, MP3, M4A, WEBM, OGG";
+
 export interface AudioValidationResult {
   valid: boolean;
   error?: string;
@@ -67,7 +69,7 @@ export function validateAudioFile(
   if (!ACCEPTED_MIME_TYPES.includes(normalizedMime as any)) {
     return {
       valid: false,
-      error: `Unsupported audio format: "${mimeType}". Accepted formats: WAV, MP3, M4A, WEBM, OGG.`,
+      error: `Unsupported audio format: "${mimeType}". Accepted formats: ${ACCEPTED_FORMATS_DISPLAY}.`,
     };
   }
 
