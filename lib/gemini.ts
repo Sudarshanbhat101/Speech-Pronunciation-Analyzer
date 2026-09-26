@@ -171,13 +171,15 @@ export async function assessPronunciation({
     endTime: w.endTime,
   }));
 
+  const issueCount = mappedWords.filter((w) => w.status !== "correct").length;
+
   const finalResult: AssessmentResult = {
     transcript: parsed.transcript,
     overallScore: parsed.overallScore,
     overallFeedback: parsed.overallFeedback,
     words: mappedWords,
     wordCount: mappedWords.length,
-    issueCount: mappedWords.filter((w) => w.status !== "correct").length,
+    issueCount,
   };
 
   return finalResult;
