@@ -22,6 +22,13 @@ const STATUS_CLASS: Record<IssueStatus, string> = {
   omitted: "word-token-omitted",
 };
 
+const LEGEND_ITEMS: Array<{ status: IssueStatus; label: string }> = [
+  { status: "correct", label: "Correct" },
+  { status: "mispronounced", label: "Mispronounced" },
+  { status: "unclear", label: "Unclear" },
+  { status: "omitted", label: "Omitted" },
+];
+
 export default function WordHighlight({ words }: WordHighlightProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -37,18 +44,11 @@ export default function WordHighlight({ words }: WordHighlightProps) {
   return (
     <div className="word-highlight">
       <div className="word-highlight-legend">
-        <span className="legend-item">
-          <span className="legend-swatch word-token-correct" /> Correct
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch word-token-mispronounced" /> Mispronounced
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch word-token-unclear" /> Unclear
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch word-token-omitted" /> Omitted
-        </span>
+        {LEGEND_ITEMS.map(({ status, label }) => (
+          <span key={status} className="legend-item">
+            <span className={`legend-swatch ${STATUS_CLASS[status]}`} /> {label}
+          </span>
+        ))}
       </div>
 
       <p className="word-highlight-text">
