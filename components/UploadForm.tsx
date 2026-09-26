@@ -14,6 +14,8 @@ const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB raw audio (~20MB once base
 const MAX_FILE_SIZE_MB = MAX_FILE_SIZE_BYTES / (1024 * 1024);
 const ACCEPTED_MIME_PREFIXES = ["audio/"];
 
+const CONSENT_LABEL = "I consent to my audio being sent to Google Gemini for one-time pronunciation analysis. My audio and transcript are processed in memory only, are not stored on any server, and are discarded immediately after the result is returned to me.";
+
 interface UploadFormProps {
   onResult: (result: AssessmentResult) => void;
   onErrorChange?: (error: string | null) => void;
@@ -235,10 +237,7 @@ export default function UploadForm({
           disabled={submitting}
         />
         <label htmlFor="consent-checkbox" className="consent-label">
-          I consent to my audio being sent to Google Gemini for one-time
-          pronunciation analysis. My audio and transcript are processed in
-          memory only, are not stored on any server, and are discarded
-          immediately after the result is returned to me.
+          {CONSENT_LABEL}
         </label>
       </div>
 
