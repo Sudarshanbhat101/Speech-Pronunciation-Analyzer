@@ -39,9 +39,9 @@ export const GEMINI_RESPONSE_SCHEMA = {
           },
           status: {
             type: "STRING",
-            enum: ["correct", "mispronounced", "unclear"],
+            enum: ["correct", "mispronounced", "unclear", "omitted"],
             description:
-              "'correct' = clearly and accurately pronounced. 'mispronounced' = identifiable pronunciation error (wrong stress, wrong phoneme, etc). 'unclear' = ambiguous, mumbled, or too distorted to confidently judge.",
+              "'correct' = clearly and accurately pronounced. 'mispronounced' = identifiable pronunciation error (wrong stress, wrong phoneme, etc). 'unclear' = ambiguous, mumbled, or too distorted to confidently judge. 'omitted' = word appears to be missing from the audio.",
           },
           reason: {
             type: "STRING",

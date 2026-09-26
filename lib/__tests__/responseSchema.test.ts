@@ -35,7 +35,7 @@ describe("GEMINI_RESPONSE_SCHEMA", () => {
 
   it("limits word status to the supported enum values", () => {
     const status = GEMINI_RESPONSE_SCHEMA.properties.words.items.properties.status;
-    expect(status.enum).toEqual(["correct", "mispronounced", "unclear"]);
+    expect(status.enum).toEqual(["correct", "mispronounced", "unclear", "omitted"]);
   });
 
   it("requires word, status, reason, confidence, startTime and endTime per word", () => {
