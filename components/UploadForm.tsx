@@ -11,6 +11,7 @@ const MAX_DURATION_SECONDS = 45;
 // Small tolerance so a 29.6s or 45.4s recording isn't rejected for rounding.
 const DURATION_TOLERANCE_SECONDS = 1;
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB raw audio (~20MB once base64-encoded for Gemini)
+const MAX_FILE_SIZE_MB = MAX_FILE_SIZE_BYTES / (1024 * 1024);
 const ACCEPTED_MIME_PREFIXES = ["audio/"];
 
 interface UploadFormProps {
@@ -112,7 +113,7 @@ export default function UploadForm({
         status: "invalid",
         message: `File is too large (${(selectedFile.size / (1024 * 1024)).toFixed(
           1
-        )}MB). Max size is ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB.`,
+        )}MB). Max size is ${MAX_FILE_SIZE_MB}MB.`,
       });
       return;
     }
