@@ -5,6 +5,8 @@ import UploadForm from "@/components/UploadForm";
 import ScoreResult from "@/components/ScoreResult";
 import type { AssessmentResult } from "@/types/assessment";
 
+const LOADING_TEXT = "Listening closely…";
+
 export default function Home() {
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +47,7 @@ export default function Home() {
               <span></span>
               <span></span>
             </div>
-            <p className="loading-text">Listening closely…</p>
+            <p className="loading-text">{LOADING_TEXT}</p>
           </div>
         )}
 
